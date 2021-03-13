@@ -1,7 +1,7 @@
 {
   "name": "TodoStackBackend",
   "dockerComposeFile": "../docker-compose.yml",
-  "service": "php-fpm",
+  "service": "app",
   "devPort": 8080,
   "workspaceFolder": "/app/src",
   "extensions": [
