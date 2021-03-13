@@ -15,7 +15,12 @@ class TodoController extends Controller
      */
     public function index()
     {
-        return Todo::all();
+        $todos = Todo::all()
+            ->map(function ($todo) {
+                $todo->limit = $todo->limit->toDateTime()->format('Y-m-d\TH:i:s');
+                return $todo;
+            });
+        return $todos;
     }
 
     /**
