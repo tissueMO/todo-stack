@@ -1,0 +1,16 @@
+{
+  "name": "TodoStackBackend",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "php-fpm",
+  "devPort": 8080,
+  "workspaceFolder": "/app/src",
+  "extensions": [
+    "felixfbecker.php-pack",
+    "felixfbecker.php-intellisense",
+    "mehedidracula.php-namespace-resolver",
+    "neilbrayfield.php-docblocker"
+  ],
+  "settings": {},
+  "postCreateCommand": "composer install",
+  "shutdownAction": "stopCompose"
+}
