@@ -18,6 +18,6 @@ use App\Http\Controllers\TodoController;
 // CORS対応
 Route::options('/{any}', fn() => '')->where('any', '.*');
 
-Route::resources([
+Route::apiResources([
     'todos' => TodoController::class,
 ]);
