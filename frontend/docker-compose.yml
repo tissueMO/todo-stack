@@ -1,6 +1,4 @@
 version: '3'
-networks:
-  todo-stack:
 services:
     nuxt:
         build: .
@@ -10,5 +8,3 @@ services:
             - '3000:3000'
         stdin_open: true
         tty: true
-        networks:
-            - todo-stack

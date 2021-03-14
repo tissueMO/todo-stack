@@ -2,10 +2,10 @@ FROM node:14-alpine AS development
 
 WORKDIR /app/src
 
-# RUN apk update && \
-#     yarn install
+RUN apk update && \
+    yarn install
 
-# CMD [ "yarn", "dev" ]
+CMD [ "yarn", "dev" ]
 
 FROM development as build
 
