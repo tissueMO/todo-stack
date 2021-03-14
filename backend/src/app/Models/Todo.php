@@ -25,7 +25,9 @@ class Todo extends Eloquent
      */
     public function getLimitAttribute()
     {
-        return $this->attributes['limit']->toDateTime()->format('Y-m-d\TH:i');
+        $date = $this->attributes['limit']->toDateTime();
+        date_timezone_set($date, timezone_open('Asia/Tokyo'));
+        return $date->format('Y-m-d\TH:i');
     }
 
     /**
@@ -34,6 +36,6 @@ class Todo extends Eloquent
      */
     public function setLimitAttribute($value)
     {
-        $this->attributes['limit'] = new UTCDateTime(date_create_from_format('Y-m-d\TH:i:00', $value));
+        $this->attributes['limit'] = new UTCDateTime(date_create_from_format('Y-m-d\TH:i:00', $value) ?: now());
     }
 }
