@@ -48,7 +48,7 @@ class TodoController extends Controller
     {
         $todo = Todo::find($id);
         $data = $request->all();
-        $data['limit'] = new UTCDateTime(strtotime($data['limit']));
+        $data['limit'] = new UTCDateTime(date_create_from_format('Y-m-d\TH:i:s', $data['limit']));
         $todo->fill($data)->save();
     }
 
@@ -60,7 +60,6 @@ class TodoController extends Controller
      */
     public function destroy($id)
     {
-        $todo = Todo::find($id);
-        $todo->delete();
+        $Todo::destroy($id);
     }
 }
