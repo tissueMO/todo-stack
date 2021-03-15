@@ -40,10 +40,12 @@ export default {
       const url = `http://localhost/api/todos/${cloneItem._id}`;
       await this.$axios.put(
         url,
-        cloneItem
-        // headers: {
-        //   'Content-Type': 'application/json'
-        // }
+        cloneItem,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       ).then((res) => {
         this.getItem();
       })
