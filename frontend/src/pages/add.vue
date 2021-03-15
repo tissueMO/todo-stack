@@ -68,7 +68,7 @@ export default {
       cloneItem.hours = Number(cloneItem.hours);
       cloneItem.priority = Number(cloneItem.priority);
       cloneItem.limit += ':00';
-      cloneItem._id = '604e2fd243b95b29e43529c6';
+      // cloneItem._id = '604e2fd243b95b29e43529c6';
       console.log(cloneItem);
       const url = 'http://localhost/api/todos' + (cloneItem._id ? `/${cloneItem._id}` : '');
       await this.$axios.request({
@@ -79,7 +79,7 @@ export default {
           'Content-Type': 'application/json'
         }
       }).then((res) => {
-        // location.reload();
+        location.reload();
       })
         .catch((err) => {
           alert('エラーが発生しました');
