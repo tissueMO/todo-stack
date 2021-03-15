@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Todo;
-use MongoDB\BSON\UTCDateTime;
 
 class TodoController extends Controller
 {
@@ -15,12 +14,7 @@ class TodoController extends Controller
      */
     public function index()
     {
-        $todos = Todo::all()
-            ->map(function ($todo) {
-                $todo->limit = $todo->limit->toDateTime()->format('Y-m-d\TH:i:s');
-                return $todo;
-            });
-        return $todos;
+        return Todo::all();
     }
 
     /**
@@ -32,9 +26,7 @@ class TodoController extends Controller
     public function store(Request $request)
     {
         $todo = new Todo();
-        $data = $request->all();
-        $data['limit'] = new UTCDateTime(date_create_from_format('Y-m-d\TH:i:s', $data['limit']));
-        $todo->fill($data)->save();
+        $todo->fill($request->all())->save();
     }
 
     /**
@@ -46,10 +38,8 @@ class TodoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $todo = Todo::find($id);
-        $data = $request->all();
-        $data['limit'] = new UTCDateTime(strtotime($data['limit']));
-        $todo->fill($data)->save();
+        $todo = Todo::findOrFail($id);
+        $todo->fill($request->all())->save();
     }
 
     /**
@@ -60,7 +50,6 @@ class TodoController extends Controller
      */
     public function destroy($id)
     {
-        $todo = Todo::find($id);
-        $todo->delete();
+        Todo::destroy($id);
     }
 }
