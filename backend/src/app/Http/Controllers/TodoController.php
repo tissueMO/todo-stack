@@ -18,7 +18,7 @@ class TodoController extends Controller
      */
     public function index()
     {
-        $todos =Todo::where('done', '!=', true)
+        $todos = Todo::where('done', '!=', true)
             ->where('limit', '>=', now())
             ->oldest('limit')
             ->orderBy('hours', config('todo.sortHoursDesc') ? 'desc' : 'asc')
