@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Todo;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
+/**
+ * タスク
+ */
 class TodoController extends Controller
 {
     /**
@@ -14,7 +18,78 @@ class TodoController extends Controller
      */
     public function index()
     {
-        return Todo::all();
+        $todos =Todo::where('done', '!=', true)
+            ->where('limit', '>=', now())
+            ->oldest('limit')
+            ->orderBy('hours', config('todo.sortHoursDesc') ? 'desc' : 'asc')
+            ->get();
+
+        $thresholds = config('todo.priorityThresholds');
+        $riskParameter = config('todo.riskParameter');
+        $capacity = config('todo.capacity');
+        $sum = 0;
+
+        $todos = $todos
+            // 優先度スコアを付与
+            ->map(function ($todo) {
+                $todo->score = $this->calcPriority($todo);
+                return $todo;
+            })
+
+            // 優先度スコアでソート
+            ->sort(function ($a, $b) {
+                return $a->score - $b->score;
+            })
+            ->reverse()
+
+            // 優先度レベル別に仕分ける
+            ->map(function ($todo) use ($thresholds) {
+                foreach ($thresholds as $index => $threshold) {
+                    if ($todo->score < $threshold) {
+                        $todo->priority = $index + 1;
+                        break;
+                    }
+                }
+                if (!isset($todo->priority)) {
+                    $todo->priority = count($thresholds) + 1;
+                }
+                return $todo;
+            });
+
+        // 1日のキャパシティ内に収める
+        $filtered = $todos->takewhile(function ($todo) use (&$sum, $riskParameter, $capacity) {
+            $withinCapacity = $sum + $todo->hours * $riskParameter <= $capacity;
+            if ($withinCapacity) {
+                $sum += $todo->hours * $riskParameter;
+            }
+            return $withinCapacity;
+        });
+
+        // キャパシティにまだ余裕がある場合に低優先度のタスクで埋め合わせる
+        $countBaseline = config('todo.countBaseline');
+        $todos->each(function ($next) use ($countBaseline, $filtered, $todos, &$sum, $riskParameter, $capacity) {
+            if ($filtered->count() >= $countBaseline || $filtered->count() === $todos->count()) {
+                return false;
+            }
+
+            // 既に追加済みの項目はスキップ
+            if ($filtered->contains(function ($t) use ($next) {
+                return $next->id === $t->id;
+            })) {
+                return true;
+            }
+
+            // 潜在的なリスクを加味した所要時間
+            $nextHoursWithRisk = $next->hours * $riskParameter;
+
+            // キャパシティ内に収まれば追加
+            if ($sum + $nextHoursWithRisk <= $capacity) {
+                $sum += $nextHoursWithRisk;
+                $filtered->concat([$next]);
+            }
+        });
+
+        return $filtered;
     }
 
     /**
@@ -51,5 +126,33 @@ class TodoController extends Controller
     public function destroy($id)
     {
         Todo::destroy($id);
+    }
+
+    /**
+     * タスクの優先度を計算します。
+     *
+     * @param Todo $todo
+     * @return int
+     */
+    private function calcPriority($todo)
+    {
+        // 潜在的なリスクを加味した所要時間
+        $riskParameter = config('todo.riskParameter');
+        $hoursWithRisk = $todo->hours * $riskParameter;
+
+        // 期限日時から逆算した残り時間を日あたりの活動可能時間のスケールに変換
+        $now = now();
+        $idleHoursOfDay = config('todo.idleHoursOfDay');
+        $limitDate = Carbon::instance($todo->limitDate);
+        $remainingHours = $limitDate->diffInHours($now);
+        $remainingHours -= (24 - $idleHoursOfDay) * $limitDate->diffInDays($now);
+
+        // 残り時間に対する比率からスコアリング
+        // - リスク込の所要時間をMAX使って終えられる時刻でちょうど100になる
+        // - 100を超えた場合はキャパシティを超えないと完了しない可能性が高い
+        $score = $hoursWithRisk / $remainingHours * 100;
+        info([$todo->name, $hoursWithRisk, $remainingHours, $score]);
+
+        return $score;
     }
 }

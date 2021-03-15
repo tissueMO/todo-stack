@@ -7,10 +7,12 @@
   "extensions": [
     "felixfbecker.php-pack",
     "felixfbecker.php-intellisense",
-    "mehedidracula.php-namespace-resolver",
-    "neilbrayfield.php-docblocker"
+    "neilbrayfield.php-docblocker",
+    "mehedidracula.php-namespace-resolver"
   ],
-  "settings": {},
+  "settings": {
+    "editor.wordSeparators": "`~!@#%^&*()-=+[{]}\\|;:'\",.<>/?"
+  },
   "postCreateCommand": "composer install",
   "shutdownAction": "stopCompose"
 }

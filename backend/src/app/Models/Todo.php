@@ -31,6 +31,16 @@ class Todo extends Eloquent
     }
 
     /**
+     * @return DateTime
+     */
+    public function getLimitDateAttribute()
+    {
+        $date = $this->attributes['limit']->toDateTime();
+        date_timezone_set($date, timezone_open('Asia/Tokyo'));
+        return $date;
+    }
+
+    /**
      * @param string $value
      * @return void
      */
