@@ -68,8 +68,9 @@ export default {
       cloneItem.hours = Number(cloneItem.hours);
       cloneItem.priority = Number(cloneItem.priority);
       cloneItem.limit += ':00';
-      // cloneItem._id = '604e2fd243b95b29e43529c6';
       console.log(cloneItem);
+      // /api/todos (POST) 新規追加
+      // /api/todos/id (PUT/PATCH) 更新
       const url = 'http://localhost/api/todos' + (cloneItem._id ? `/${cloneItem._id}` : '');
       await this.$axios.request({
         url,
@@ -79,7 +80,6 @@ export default {
           'Content-Type': 'application/json'
         }
       }).then((res) => {
-        // location.reload();
         this.getItem();
         this.item = { _id: null, name: '', hours: 0, limit: '', priority: 1 };
       })
@@ -91,8 +91,8 @@ export default {
     async deleteItem (e) {
       const id = e.currentTarget.id;
       console.log(id);
+      // /api/todos/id (DELETE) 削除
       const url = `http://localhost/api/todos/${id}`;
-      //   const params = 1;
       await this.$axios.delete(url)
         .then((res) => {
           alert('削除しました');
@@ -105,19 +105,9 @@ export default {
         });
     },
     editItem (index) {
-      const target = this.todos[index];
-      // const targetItem = {};
-      this.item._id = target._id;
-      this.item.name = target.name;
-      this.item.limit = target.limit;
-      this.item.hours = target.hours;
-      this.item.priority = target.priority;
-      // this.item = { };
+      this.item = { ...this.todos[index] };
       console.log(this.item);
     }
-    // /api/todos (POST) 新規追加
-    // /api/todos (PUT/PATCH) 更新
-    // /api/todos (DELETE) 削除
   }
 };
 </script>
