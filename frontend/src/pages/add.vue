@@ -79,7 +79,9 @@ export default {
           'Content-Type': 'application/json'
         }
       }).then((res) => {
-        location.reload();
+        // location.reload();
+        this.getItem();
+        this.item = { _id: null, name: '', hours: 0, limit: '', priority: 1 };
       })
         .catch((err) => {
           alert('エラーが発生しました');
@@ -92,7 +94,11 @@ export default {
       const url = `http://localhost/api/todos/${id}`;
       //   const params = 1;
       await this.$axios.delete(url)
-        .then((res) => { alert('削除しました'); })
+        .then((res) => {
+          alert('削除しました');
+          this.getItem();
+          this.item = { _id: null, name: '', hours: 0, limit: '', priority: 1 };
+        })
         .catch((err) => {
           alert('エラーが発生しました');
           console.error(err);
