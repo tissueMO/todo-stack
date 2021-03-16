@@ -23,6 +23,12 @@ export default {
   mounted () {
     this.getItem();
   },
+  created () {
+    // 30分に1回データ取得
+    setInterval(() => {
+      this.getItem();
+    }, 30 * 60 * 1000);
+  },
   methods: {
     async getItem () {
       // データ取得のためのメソッド
