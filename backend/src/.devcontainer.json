@@ -16,5 +16,5 @@
     "php-cs-fixer.executablePath": "vendor/bin/php-cs-fixer"
   },
   "postCreateCommand": "composer install",
-  "shutdownAction": "stopCompose"
+  "shutdownAction": "none"
 }
