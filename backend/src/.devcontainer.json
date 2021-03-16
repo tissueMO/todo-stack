@@ -11,8 +11,10 @@
     "mehedidracula.php-namespace-resolver"
   ],
   "settings": {
-    "editor.wordSeparators": "`~!@#%^&*()-=+[{]}\\|;:'\",.<>/?"
+    "editor.wordSeparators": "`~!@#%^&*()-=+[{]}\\|;:'\",.<>/?",
+    "terminal.integrated.shell.linux": "/bin/sh",
+    "php-cs-fixer.executablePath": "vendor/bin/php-cs-fixer"
   },
   "postCreateCommand": "composer install",
-  "shutdownAction": "stopCompose"
+  "shutdownAction": "none"
 }

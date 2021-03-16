@@ -12,24 +12,27 @@ use Illuminate\Support\Carbon;
 class TodoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * タスクの一覧を返します。
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $todos =Todo::where('done', '!=', true)
+        if ($request->query('top')) {
+            // より優先度の高いタスク上位に絞り込んで返す
+            $todos = Todo::where('done', '!=', true)
             ->where('limit', '>=', now())
             ->oldest('limit')
             ->orderBy('hours', config('todo.sortHoursDesc') ? 'desc' : 'asc')
             ->get();
 
-        $thresholds = config('todo.priorityThresholds');
-        $riskParameter = config('todo.riskParameter');
-        $capacity = config('todo.capacity');
-        $sum = 0;
+            $thresholds = config('todo.priorityThresholds');
+            $riskParameter = config('todo.riskParameter');
+            $capacity = config('todo.capacity');
+            $sum = 0;
 
-        $todos = $todos
+            $todos = $todos
             // 優先度スコアを付与
             ->map(function ($todo) {
                 $todo->score = $this->calcPriority($todo);
@@ -56,44 +59,48 @@ class TodoController extends Controller
                 return $todo;
             });
 
-        // 1日のキャパシティ内に収める
-        $filtered = $todos->takewhile(function ($todo) use (&$sum, $riskParameter, $capacity) {
-            $withinCapacity = $sum + $todo->hours * $riskParameter <= $capacity;
-            if ($withinCapacity) {
-                $sum += $todo->hours * $riskParameter;
-            }
-            return $withinCapacity;
-        });
+            // 1日のキャパシティ内に収める
+            $filtered = $todos->takewhile(function ($todo) use (&$sum, $riskParameter, $capacity) {
+                $withinCapacity = $sum + $todo->hours * $riskParameter <= $capacity;
+                if ($withinCapacity) {
+                    $sum += $todo->hours * $riskParameter;
+                }
+                return $withinCapacity;
+            });
 
-        // キャパシティにまだ余裕がある場合に低優先度のタスクで埋め合わせる
-        $countBaseline = config('todo.countBaseline');
-        $todos->each(function ($next) use ($countBaseline, $filtered, $todos, &$sum, $riskParameter, $capacity) {
-            if ($filtered->count() >= $countBaseline || $filtered->count() === $todos->count()) {
-                return false;
-            }
+            // キャパシティにまだ余裕がある場合に低優先度のタスクで埋め合わせる
+            $countBaseline = config('todo.countBaseline');
+            $todos->each(function ($next) use ($countBaseline, $filtered, $todos, &$sum, $riskParameter, $capacity) {
+                if ($filtered->count() >= $countBaseline || $filtered->count() === $todos->count()) {
+                    return false;
+                }
 
-            // 既に追加済みの項目はスキップ
-            if ($filtered->contains(function ($t) use ($next) {
-                return $next->id === $t->id;
-            })) {
-                return true;
-            }
+                // 既に追加済みの項目はスキップ
+                if ($filtered->contains(function ($t) use ($next) {
+                    return $next->id === $t->id;
+                })) {
+                    return true;
+                }
 
-            // 潜在的なリスクを加味した所要時間
-            $nextHoursWithRisk = $next->hours * $riskParameter;
+                // 潜在的なリスクを加味した所要時間
+                $nextHoursWithRisk = $next->hours * $riskParameter;
 
-            // キャパシティ内に収まれば追加
-            if ($sum + $nextHoursWithRisk <= $capacity) {
-                $sum += $nextHoursWithRisk;
-                $filtered->concat([$next]);
-            }
-        });
+                // キャパシティ内に収まれば追加
+                if ($sum + $nextHoursWithRisk <= $capacity) {
+                    $sum += $nextHoursWithRisk;
+                    $filtered->concat([$next]);
+                }
+            });
 
-        return $filtered;
+            return $filtered;
+        }
+
+        // デフォルトで全件返す
+        return Todo::all();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * タスクを追加します。
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -105,7 +112,7 @@ class TodoController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * タスクを更新します。
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -118,7 +125,7 @@ class TodoController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * タスクを削除します。
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
