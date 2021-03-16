@@ -1,6 +1,9 @@
 <template>
   <div id="app" class="container">
     <h1>TODOリスト</h1>
+    <NuxtLink to="/edit">
+      編集ページへ
+    </NuxtLink>
     <ul>
       <li>タスク名 | 所要時間 | 期限</li>
       <li v-for="(todo, index) in todos" :key="index">

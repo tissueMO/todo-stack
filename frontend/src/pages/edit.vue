@@ -1,6 +1,9 @@
 <template>
   <div id="app" class="container">
-    <h1>追加ページ</h1>
+    <h1>編集ページ</h1>
+    <NuxtLink to="/">
+      トップへ
+    </NuxtLink>
     <ul>
       <!-- <li>優先度 | タスク名 | 所要時間 | 期限</li> -->
       <li>タスク名 | 所要時間 | 期限</li>
