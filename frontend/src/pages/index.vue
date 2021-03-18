@@ -34,20 +34,16 @@ export default {
   },
   methods: {
     async getItem () {
-      // データ取得のためのメソッド
       // /api/todos (GET) 一覧
       const url = 'http://localhost/api/todos/?top=true';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      // console.log(this.todos[0]._id);
     },
     async doneTask (index) {
-      // タスク完了のためのメソッド
       const cloneItem = { ...this.todos[index] };
       cloneItem.hours = Number(cloneItem.hours);
       if (cloneItem.priority) { cloneItem.priority = Number(cloneItem.priority); }
       cloneItem.limit += ':00';
       cloneItem.done = true;
-      // console.log(cloneItem);
       const url = `http://localhost/api/todos/${cloneItem._id}`;
       await this.$axios.put(
         url,
