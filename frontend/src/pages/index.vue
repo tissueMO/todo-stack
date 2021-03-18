@@ -1,10 +1,13 @@
 <template>
   <div id="app" class="container">
     <h1>TODOリスト</h1>
+    <NuxtLink to="/edit">
+      編集ページへ
+    </NuxtLink>
     <ul>
       <li>タスク名 | 所要時間 | 期限</li>
       <li v-for="(todo, index) in todos" :key="index">
-        {{ todo.name }} | {{ todo.hour }} | {{ todo.limit }}
+        {{ todo.name }} | {{ todo.hours }} | {{ todo.limit }}
         <button class="btn btn-sm btn-info" @click="doneTask(index)">
           完了
         </button>
@@ -23,12 +26,17 @@ export default {
   mounted () {
     this.getItem();
   },
+  created () {
+    // 30分に1回データ取得
+    setInterval(() => {
+      this.getItem();
+    }, 30 * 60 * 1000);
+  },
   methods: {
     async getItem () {
       // /api/todos (GET) 一覧
-      const url = 'http://localhost/api/todos';
+      const url = 'http://localhost/api/todos/?top=true';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      // console.log(this.todos[0]._id);
     },
     async doneTask (index) {
       const cloneItem = { ...this.todos[index] };
@@ -36,7 +44,6 @@ export default {
       if (cloneItem.priority) { cloneItem.priority = Number(cloneItem.priority); }
       cloneItem.limit += ':00';
       cloneItem.done = true;
-      console.log(cloneItem);
       const url = `http://localhost/api/todos/${cloneItem._id}`;
       await this.$axios.put(
         url,

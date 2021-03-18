@@ -1,6 +1,9 @@
 <template>
   <div id="app" class="container">
-    <h1>追加ページ</h1>
+    <h1>編集ページ</h1>
+    <NuxtLink to="/">
+      トップへ
+    </NuxtLink>
     <ul>
       <li>タスク名 | 所要時間 | 期限</li>
       <li v-for="(todo, index) in todos" :key="index">
@@ -47,7 +50,7 @@ export default {
       // /api/todos (GET) 一覧
       const url = 'http://localhost/api/todos';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      console.log(this.todos[0]._id);
+      console.log(this.todos);
     },
     async addItem (e) {
       const cloneItem = { ...this.item };
@@ -90,6 +93,7 @@ export default {
         });
     },
     editItem (index) {
+      // タスク編集
       this.item = { ...this.todos[index] };
       console.log(this.item);
     }
