@@ -4,15 +4,28 @@
     <NuxtLink to="/edit">
       編集ページへ
     </NuxtLink>
-    <ul>
-      <li>タスク名 | 所要時間 | 期限</li>
-      <li v-for="(todo, index) in todos" :key="index">
-        {{ todo.name }} | {{ todo.hours }} | {{ todo.limit }}
-        <button class="btn btn-sm btn-info" @click="doneTask(index)">
-          完了
-        </button>
-      </li>
-    </ul>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>タスク名</th>
+          <th>所要時間</th>
+          <th>期限</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(todo, index) in todos" :key="index">
+          <td>{{ todo.name }}</td>
+          <td>{{ todo.hours }}</td>
+          <td>{{ todo.limit }}</td>
+          <td>
+            <button class="btn btn-sm btn-info" @click="doneTask(index)">
+              完了
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
