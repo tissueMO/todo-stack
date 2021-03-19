@@ -11,6 +11,7 @@
           <th>所要時間</th>
           <th>期限</th>
           <th />
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -19,8 +20,13 @@
           <td>{{ todo.hours }}</td>
           <td>{{ todo.limit }}</td>
           <td>
-            <button class="btn btn-sm btn-info" @click="doneTask(index)">
-              完了
+            <button class="btn btn-sm btn-primary" @click="editItem(index)">
+              編集
+            </button>
+          </td>
+          <td>
+            <button :id="todo._id" class="btn btn-sm btn-danger" @click="deleteItem">
+              削除
             </button>
           </td>
         </tr>
