@@ -25,7 +25,7 @@
           <td class="hours text-center">
             {{ todo.hours }}
           </td>
-          <td>{{ todo.limit.replace(/-/g, '/').replace('T', ' ') }}</td>
+          <td>{{ todo.limit | date }}</td>
           <td>
             <button class="btn btn-sm btn-info btn-block" @click="completeTask(index)">
               完了

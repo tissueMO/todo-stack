@@ -18,7 +18,7 @@
         <tr v-for="(todo, index) in todos" :key="index">
           <td>{{ todo.name }}</td>
           <td>{{ todo.hours }}</td>
-          <td>{{ todo.limit.replace(/-/g, '/').replace('T', ' ') }}</td>
+          <td>{{ todo.limit | date }}</td>
           <td>
             <button class="btn btn-sm btn-primary btn-block" @click="editItem(index)">
               編集
