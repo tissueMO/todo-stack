@@ -20,12 +20,12 @@
           <td>{{ todo.hours }}</td>
           <td>{{ todo.limit }}</td>
           <td>
-            <button class="btn btn-sm btn-primary" @click="editItem(index)">
+            <button class="btn btn-sm btn-primary btn-block" @click="editItem(index)">
               編集
             </button>
           </td>
           <td>
-            <button :id="todo._id" class="btn btn-sm btn-danger" @click="deleteItem">
+            <button :id="todo._id" class="btn btn-sm btn-danger btn-block" @click="deleteItem">
               削除
             </button>
           </td>
@@ -44,7 +44,7 @@
       <label for="limit">期限</label>
       <input id="limit" v-model="item.limit" type="datetime-local" name="limit">
     </div>
-    <button @click="addItem">
+    <button class="btn btn-secondary" @click="addItem">
       追加
     </button>
   </div>
@@ -64,7 +64,7 @@ export default {
   methods: {
     async getItem () {
       // /api/todos (GET) 一覧
-      const url = 'http://localhost/api/todos';
+      const url = 'http://localhost/api/todos/?incomplete=true';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
       console.log(this.todos);
     },

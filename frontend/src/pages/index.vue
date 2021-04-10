@@ -19,7 +19,7 @@
           <td>{{ todo.hours }}</td>
           <td>{{ todo.limit }}</td>
           <td>
-            <button class="btn btn-sm btn-info" @click="doneTask(index)">
+            <button class="btn btn-sm btn-info btn-block" @click="completeTask(index)">
               完了
             </button>
           </td>
@@ -50,13 +50,14 @@ export default {
       // /api/todos (GET) 一覧
       const url = 'http://localhost/api/todos/?top=true';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
+      console.log(this.todos);
     },
-    async doneTask (index) {
+    async completeTask (index) {
       const cloneItem = { ...this.todos[index] };
       cloneItem.hours = Number(cloneItem.hours);
       if (cloneItem.priority) { cloneItem.priority = Number(cloneItem.priority); }
       cloneItem.limit += ':00';
-      cloneItem.done = true;
+      cloneItem.complete = true;
       const url = `http://localhost/api/todos/${cloneItem._id}`;
       await this.$axios.put(
         url,
@@ -78,5 +79,6 @@ export default {
 };
 </script>
 
-<style>
+<style lang='scss'>
+
 </style>
