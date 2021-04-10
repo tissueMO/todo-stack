@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 volumes:
   php-fpm-socket:
   mongo-db:
@@ -6,9 +6,19 @@ volumes:
 networks:
   todo-stack:
 services:
+  frontend:
+    build:
+      context: frontend
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true
+    tty: true
   web:
     build:
-      context: .
+      context: backend
       dockerfile: docker/web/Dockerfile
     restart: always
     ports:
@@ -16,18 +26,18 @@ services:
     volumes:
       - php-fpm-socket:/var/run/php-fpm
       - .:/app
-      - ./docker/web/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./backend/docker/web/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - todo-stack
   app:
     build:
-      context: .
+      context: backend
       dockerfile: docker/app/Dockerfile
     ports:
       - 8080:8080
     volumes:
       - php-fpm-socket:/var/run/php-fpm
-      - .:/app
+      - ./backend/src:/app/src
     networks:
       - todo-stack
     environment:
@@ -51,7 +61,7 @@ services:
     volumes:
       - mongo-db:/data/db
       - mongo-configdb:/data/configdb
-      - ./docker/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - ./backend/docker/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
   db-admin:
     image: mongo-express:latest
     restart: always
