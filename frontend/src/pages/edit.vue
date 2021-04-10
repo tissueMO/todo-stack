@@ -1,18 +1,37 @@
 <template>
   <div id="app" class="container">
-    <h1>追加ページ</h1>
-    <ul>
-      <li>タスク名 | 所要時間 | 期限</li>
-      <li v-for="(todo, index) in todos" :key="index">
-        {{ todo.name }} | {{ todo.hours }} | {{ todo.limit }}
-        <button class="btn btn-sm btn-success" @click="editItem(index)">
-          編集
-        </button>
-        <button :id="todo._id" class="btn btn-sm btn-danger" @click="deleteItem">
-          削除
-        </button>
-      </li>
-    </ul>
+    <h1>編集ページ</h1>
+    <NuxtLink to="/">
+      トップへ
+    </NuxtLink>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>タスク名</th>
+          <th>所要時間</th>
+          <th>期限</th>
+          <th />
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(todo, index) in todos" :key="index">
+          <td>{{ todo.name }}</td>
+          <td>{{ todo.hours }}</td>
+          <td>{{ todo.limit }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary" @click="editItem(index)">
+              編集
+            </button>
+          </td>
+          <td>
+            <button :id="todo._id" class="btn btn-sm btn-danger" @click="deleteItem">
+              削除
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <div class="form-group">
       <label for="name">タスク名</label>
       <input id="name" v-model="item.name" name="name" type="text">
@@ -47,7 +66,7 @@ export default {
       // /api/todos (GET) 一覧
       const url = 'http://localhost/api/todos';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      console.log(this.todos[0]._id);
+      console.log(this.todos);
     },
     async addItem (e) {
       const cloneItem = { ...this.item };
@@ -90,6 +109,7 @@ export default {
         });
     },
     editItem (index) {
+      // タスク編集
       this.item = { ...this.todos[index] };
       console.log(this.item);
     }
