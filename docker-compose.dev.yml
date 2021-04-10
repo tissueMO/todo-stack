@@ -25,7 +25,7 @@ services:
       - 80:80
     volumes:
       - php-fpm-socket:/var/run/php-fpm
-      - .:/app
+      - ./backend/src:/app/src
       - ./backend/docker/web/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - todo-stack
@@ -35,6 +35,8 @@ services:
       dockerfile: docker/app/Dockerfile
     ports:
       - 8080:8080
+    depends_on:
+      - web
     volumes:
       - php-fpm-socket:/var/run/php-fpm
       - ./backend/src:/app/src
