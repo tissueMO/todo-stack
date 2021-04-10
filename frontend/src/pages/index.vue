@@ -7,17 +7,34 @@
     <table class="table table-hover">
       <thead>
         <tr>
-          <th>タスク名</th>
-          <th>所要時間</th>
-          <th>期限</th>
-          <th />
+          <th class="tasks">
+            タスク名
+          </th>
+          <th class="hours text-center">
+            所要時間
+          </th>
+          <th class="limit">
+            期限
+          </th>
+          <th class="buttons" />
         </tr>
       </thead>
       <tbody>
+        <tr>
+          <td>アノテーションツール作成</td> <td class="hours text-center">
+            5
+          </td> <td>2021/04/12 12:00</td> <td>
+            <button class="btn btn-sm btn-info btn-block">
+              完了
+            </button>
+          </td>
+        </tr>
         <tr v-for="(todo, index) in todos" :key="index">
           <td>{{ todo.name }}</td>
-          <td>{{ todo.hours }}</td>
-          <td>{{ todo.limit }}</td>
+          <td class="hours text-center">
+            {{ todo.hours }}
+          </td>
+          <td>{{ todo.limit.replace(/-/g, '/').replace('T', ' ') }}</td>
           <td>
             <button class="btn btn-sm btn-info btn-block" @click="completeTask(index)">
               完了
@@ -80,5 +97,13 @@ export default {
 </script>
 
 <style lang='scss'>
-
+.hours{
+  width: 6rem;
+}
+.limit{
+  width: 10rem;
+}
+.buttons{
+  width: 7rem;
+}
 </style>
