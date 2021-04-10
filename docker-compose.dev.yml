@@ -1,0 +1,80 @@
+version: '3'
+volumes:
+  php-fpm-socket:
+  mongo-db:
+  mongo-configdb:
+networks:
+  todo-stack:
+services:
+  frontend:
+    build:
+      context: frontend
+      target: development
+    restart: always
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend/src:/app/src
+    stdin_open: true
+    tty: true
+  web:
+    build:
+      context: backend
+      dockerfile: docker/web/Dockerfile
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - php-fpm-socket:/var/run/php-fpm
+      - ./backend/src:/app/src
+      - ./backend/docker/web/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - todo-stack
+  app:
+    build:
+      context: backend
+      dockerfile: docker/app/Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - web
+    volumes:
+      - php-fpm-socket:/var/run/php-fpm
+      - ./backend/src:/app/src
+    networks:
+      - todo-stack
+    environment:
+      TZ: Asia/Tokyo
+      MONGO_DB_HOST: db
+      MONGO_DB_DATABASE: todo_stack
+      MONGO_DB_USERNAME: admin
+      MONGO_DB_PASSWORD: cG7UHEH9RcWLk8eu374JNcc4vpreWp6svgcE8t7e
+  db:
+    build:
+      context: backend/docker/db
+    restart: always
+    environment:
+      TZ: Asia/Tokyo
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: cG7UHEH9RcWLk8eu374JNcc4vpreWp6svgcE8t7e
+      MONGO_INITDB_DATABASE: todo_stack
+    ports:
+      - 27017:27017
+    networks:
+      - todo-stack
+    volumes:
+      - mongo-db:/data/db
+      - mongo-configdb:/data/configdb
+  db-admin:
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - db
+    networks:
+      - todo-stack
+    environment:
+      ME_CONFIG_MONGODB_SERVER: db
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: cG7UHEH9RcWLk8eu374JNcc4vpreWp6svgcE8t7e
