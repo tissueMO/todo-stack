@@ -21,11 +21,10 @@ class TodoController extends Controller
     {
         if ($request->query('top')) {
             // より優先度の高いタスク上位に絞り込んで返す
-            $todos = Todo::where('done', '!=', true)
-            ->where('limit', '>=', now())
-            ->oldest('limit')
-            ->orderBy('hours', config('todo.sortHoursDesc') ? 'desc' : 'asc')
-            ->get();
+            $todos = Todo::where('complete', '!=', true)
+                ->oldest('limit')
+                ->orderBy('hours', config('todo.sortHoursDesc') ? 'desc' : 'asc')
+                ->get();
 
             $thresholds = config('todo.priorityThresholds');
             $riskParameter = config('todo.riskParameter');
@@ -33,31 +32,31 @@ class TodoController extends Controller
             $sum = 0;
 
             $todos = $todos
-            // 優先度スコアを付与
-            ->map(function ($todo) {
-                $todo->score = $this->calcPriority($todo);
-                return $todo;
-            })
+                // 優先度スコアを付与
+                ->map(function ($todo) {
+                    $todo->score = $this->calcPriority($todo);
+                    return $todo;
+                })
 
-            // 優先度スコアでソート
-            ->sort(function ($a, $b) {
-                return $a->score - $b->score;
-            })
-            ->reverse()
+                // 優先度スコアでソート
+                ->sort(function ($a, $b) {
+                    return $a->score - $b->score;
+                })
+                ->reverse()
 
-            // 優先度レベル別に仕分ける
-            ->map(function ($todo) use ($thresholds) {
-                foreach ($thresholds as $index => $threshold) {
-                    if ($todo->score < $threshold) {
-                        $todo->priority = $index + 1;
-                        break;
+                // 優先度レベル別に仕分ける
+                ->map(function ($todo) use ($thresholds) {
+                    foreach ($thresholds as $index => $threshold) {
+                        if ($todo->score < $threshold) {
+                            $todo->priority = $index + 1;
+                            break;
+                        }
                     }
-                }
-                if (!isset($todo->priority)) {
-                    $todo->priority = count($thresholds) + 1;
-                }
-                return $todo;
-            });
+                    if (!isset($todo->priority)) {
+                        $todo->priority = count($thresholds) + 1;
+                    }
+                    return $todo;
+                });
 
             // 1日のキャパシティ内に収める
             $filtered = $todos->takewhile(function ($todo) use (&$sum, $riskParameter, $capacity) {
@@ -93,6 +92,11 @@ class TodoController extends Controller
             });
 
             return $filtered;
+        }
+
+        // 未完了のタスクを返す
+        if ($request->query('incomplete')) {
+            return Todo::where('complete', '!=', true)->get();
         }
 
         // デフォルトで全件返す
@@ -153,11 +157,12 @@ class TodoController extends Controller
         $limitDate = Carbon::instance($todo->limitDate);
         $remainingHours = $limitDate->diffInHours($now);
         $remainingHours -= (24 - $idleHoursOfDay) * $limitDate->diffInDays($now);
+        if ($limitDate < $now) {
+            $remainingHours = -$remainingHours;
+        }
 
-        // 残り時間に対する比率からスコアリング
-        // - リスク込の所要時間をMAX使って終えられる時刻でちょうど100になる
-        // - 100を超えた場合はキャパシティを超えないと完了しない可能性が高い
-        $score = $hoursWithRisk / $remainingHours * 100;
+        // 残り時間を正負反転したものをスコアとする
+        $score = -$remainingHours;
         info([$todo->name, $hoursWithRisk, $remainingHours, $score]);
 
         return $score;

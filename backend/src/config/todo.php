@@ -11,7 +11,7 @@ return [
     'riskParameter' => 1.3,
 
     // 同じ優先度における所要時間のソートを逆順にするかどうか
-    'sortHoursDesc' => false,
+    'sortHoursDesc' => true,
 
     // スコア閾値
     'priorityThresholds' => [20, 50, 75, 100],
