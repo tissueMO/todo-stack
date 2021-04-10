@@ -20,15 +20,6 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>アノテーションツール作成</td> <td class="hours text-center">
-            5
-          </td> <td>2021/04/12 12:00</td> <td>
-            <button class="btn btn-sm btn-info btn-block">
-              完了
-            </button>
-          </td>
-        </tr>
         <tr v-for="(todo, index) in todos" :key="index">
           <td>{{ todo.name }}</td>
           <td class="hours text-center">
