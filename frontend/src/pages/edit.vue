@@ -64,7 +64,7 @@ export default {
   methods: {
     async getItem () {
       // /api/todos (GET) 一覧
-      const url = 'http://localhost/api/todos';
+      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos`;
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
       console.log(this.todos);
     },
@@ -75,7 +75,7 @@ export default {
       console.log(cloneItem);
       // /api/todos (POST) 新規追加
       // /api/todos/id (PUT/PATCH) 更新
-      const url = 'http://localhost/api/todos' + (cloneItem._id ? `/${cloneItem._id}` : '');
+      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos${cloneItem._id ? `/${cloneItem._id}` : ''}`;
       await this.$axios.request({
         url,
         method: (cloneItem._id ? 'put' : 'post'),
@@ -96,7 +96,7 @@ export default {
       const id = e.currentTarget.id;
       console.log(id);
       // /api/todos/id (DELETE) 削除
-      const url = `http://localhost/api/todos/${id}`;
+      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/${id}`;
       await this.$axios.delete(url)
         .then((res) => {
           alert('削除しました');

@@ -48,7 +48,7 @@ export default {
   methods: {
     async getItem () {
       // /api/todos (GET) 一覧
-      const url = 'http://localhost/api/todos/?top=true';
+      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/?top=true`;
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
     },
     async doneTask (index) {
@@ -57,7 +57,7 @@ export default {
       if (cloneItem.priority) { cloneItem.priority = Number(cloneItem.priority); }
       cloneItem.limit += ':00';
       cloneItem.done = true;
-      const url = `http://localhost/api/todos/${cloneItem._id}`;
+      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/${cloneItem._id}`;
       await this.$axios.put(
         url,
         cloneItem,
