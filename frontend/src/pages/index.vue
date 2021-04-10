@@ -7,19 +7,27 @@
     <table class="table table-hover">
       <thead>
         <tr>
-          <th>タスク名</th>
-          <th>所要時間</th>
-          <th>期限</th>
-          <th />
+          <th class="tasks">
+            タスク名
+          </th>
+          <th class="hours text-center">
+            所要時間
+          </th>
+          <th class="limit">
+            期限
+          </th>
+          <th class="buttons" />
         </tr>
       </thead>
       <tbody>
         <tr v-for="(todo, index) in todos" :key="index">
           <td>{{ todo.name }}</td>
-          <td>{{ todo.hours }}</td>
-          <td>{{ todo.limit }}</td>
+          <td class="hours text-center">
+            {{ todo.hours }}
+          </td>
+          <td>{{ todo.limit | date }}</td>
           <td>
-            <button class="btn btn-sm btn-info" @click="doneTask(index)">
+            <button class="btn btn-sm btn-info btn-block" @click="completeTask(index)">
               完了
             </button>
           </td>
@@ -50,13 +58,14 @@ export default {
       // /api/todos (GET) 一覧
       const url = 'http://localhost/api/todos/?top=true';
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
+      console.log(this.todos);
     },
-    async doneTask (index) {
+    async completeTask (index) {
       const cloneItem = { ...this.todos[index] };
       cloneItem.hours = Number(cloneItem.hours);
       if (cloneItem.priority) { cloneItem.priority = Number(cloneItem.priority); }
       cloneItem.limit += ':00';
-      cloneItem.done = true;
+      cloneItem.complete = true;
       const url = `http://localhost/api/todos/${cloneItem._id}`;
       await this.$axios.put(
         url,
@@ -78,5 +87,14 @@ export default {
 };
 </script>
 
-<style>
+<style lang='scss'>
+.hours{
+  width: 6rem;
+}
+.limit{
+  width: 10rem;
+}
+.buttons{
+  width: 7rem;
+}
 </style>
