@@ -67,6 +67,11 @@ class TodoController extends Controller
                 return $withinCapacity;
             });
 
+            // 最優先のタスクがキャパシティを超えてしまった場合は救出
+            if ($filtered->count() === 0) {
+                $filtered = $todos->take(1);
+            }
+
             // キャパシティにまだ余裕がある場合に低優先度のタスクで埋め合わせる
             $countBaseline = config('todo.countBaseline');
             $todos->each(function ($next) use ($countBaseline, $filtered, $todos, &$sum, $riskParameter, $capacity) {
