@@ -1,6 +1,8 @@
 # 開発ステージ
 FROM node:14-alpine AS development
 
+ENV HOST 0.0.0.0
+
 WORKDIR /app/src
 
 RUN apk update && \
