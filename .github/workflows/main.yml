@@ -50,7 +50,7 @@ jobs:
 
       - name: Build image
         working-directory: frontend
-        run: docker build --tag ${{ matrix.image }} .
+        run: docker build --target production --tag ${{ matrix.image }} .
 
       - name: Push image
         run: |
