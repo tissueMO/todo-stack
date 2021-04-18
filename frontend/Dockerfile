@@ -16,6 +16,9 @@ ENV HOST 0.0.0.0
 
 WORKDIR /app/src
 
+RUN apk add --update python make g++ && \
+    rm -rf /var/cache/apk/*
+
 ADD src /app/src
 RUN yarn install && \
     yarn build
