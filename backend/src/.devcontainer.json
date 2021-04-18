@@ -1,0 +1,20 @@
+{
+  "name": "TodoStackBackend",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "devPort": 8080,
+  "workspaceFolder": "/app/src",
+  "extensions": [
+    "felixfbecker.php-pack",
+    "felixfbecker.php-intellisense",
+    "neilbrayfield.php-docblocker",
+    "mehedidracula.php-namespace-resolver"
+  ],
+  "settings": {
+    "editor.wordSeparators": "`~!@#%^&*()-=+[{]}\\|;:'\",.<>/?",
+    "terminal.integrated.shell.linux": "/bin/sh",
+    "php-cs-fixer.executablePath": "vendor/bin/php-cs-fixer"
+  },
+  "postCreateCommand": "composer install",
+  "shutdownAction": "none"
+}
