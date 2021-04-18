@@ -32,18 +32,16 @@ jobs:
 
       - name: Build image
         working-directory: backend
-        run: |
-          docker buildx build \
-            --platform linux/arm/v7,linux/amd64 \
-            --file docker/${{ matrix.image }}/Dockerfile --tag ${{ matrix.image }} .
-
-      - name: Push image
+        
         run: |
           IMAGE_ID=$DOCKER_REGISTRY/${{ github.repository }}/${{ env.DOCKER_IMAGE_PREFIX }}${{ matrix.image }}
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           IMAGE_VERSION=latest
-          docker tag ${{ matrix.image }} $IMAGE_ID:$IMAGE_VERSION
-          docker push $IMAGE_ID:$IMAGE_VERSION
+
+          docker buildx build \
+            --push
+            --platform linux/arm/v7,linux/amd64 \
+            --file docker/${{ matrix.image }}/Dockerfile --tag $IMAGE_ID:$IMAGE_VERSION . 
 
   push_frontend:
     # ソースコード一式を Docker コンテナーに封入して GitHub Packages にプッシュする
@@ -68,14 +66,11 @@ jobs:
       - name: Build image
         working-directory: frontend
         run: |
-          docker buildx build \
-            --platform linux/arm/v7,linux/amd64 \
-            --target production --tag ${{ matrix.image }} .
-
-      - name: Push image
-        run: |
           IMAGE_ID=$DOCKER_REGISTRY/${{ github.repository }}/${{ env.DOCKER_IMAGE_PREFIX }}${{ matrix.image }}
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
           IMAGE_VERSION=latest
-          docker tag ${{ matrix.image }} $IMAGE_ID:$IMAGE_VERSION
-          docker push $IMAGE_ID:$IMAGE_VERSION
+
+          docker buildx build \
+            --push
+            --platform linux/arm/v7,linux/amd64 \
+            --target production --tag $IMAGE_ID:$IMAGE_VERSION .
