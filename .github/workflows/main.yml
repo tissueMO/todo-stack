@@ -40,7 +40,7 @@ jobs:
 
           docker buildx build \
             --push \
-            --platform linux/arm/v7,linux/amd64 \
+            --platform linux/arm/v7 \
             --file docker/${{ matrix.image }}/Dockerfile --tag $IMAGE_ID:$IMAGE_VERSION . 
 
   push_frontend:
@@ -72,5 +72,5 @@ jobs:
 
           docker buildx build \
             --push \
-            --platform linux/arm/v7,linux/amd64 \
+            --platform linux/arm/v7 \
             --target production --tag $IMAGE_ID:$IMAGE_VERSION .
