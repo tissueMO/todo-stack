@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 /**
- * タスク
+ * タスクコントローラー
  */
 class TodoController extends Controller
 {
