@@ -3,12 +3,7 @@ name: Build and Push for Server
 on:
   push:
     branches:
-      - master
-      - develop
-  pull_request:
-    branches:
-      - master
-      - develop
+      - main
 
 env:
   DOCKER_REGISTRY: docker.pkg.github.com
