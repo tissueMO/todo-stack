@@ -7,20 +7,14 @@ networks:
   todo-stack:
 services:
   frontend:
-    build:
-      context: frontend
-      target: production
-    restart: always
+    image: docker.pkg.github.com/himantyu-yuma/todo-stack/todo-stack_frontend:latest
     ports:
       - 3000:3000
     environment:
       BACKEND_SCHEME: http
       BACKEND_HOST:
   web:
-    build:
-      context: backend
-      dockerfile: docker/web/Dockerfile
-    restart: always
+    image: docker.pkg.github.com/himantyu-yuma/todo-stack/todo-stack_web:latest
     ports:
       - 80:80
     volumes:
@@ -30,9 +24,7 @@ services:
     networks:
       - todo-stack
   app:
-    build:
-      context: backend
-      dockerfile: docker/app/Dockerfile
+    image: docker.pkg.github.com/himantyu-yuma/todo-stack/todo-stack_app:latest
     ports:
       - 8080:8080
     volumes:
@@ -51,8 +43,7 @@ services:
       MONGO_DB_USERNAME:
       MONGO_DB_PASSWORD:
   db:
-    build:
-      context: backend/docker/db
+    image: todo-stack_db:latest
     restart: always
     environment:
       TZ: Asia/Tokyo
@@ -71,8 +62,6 @@ services:
     restart: always
     ports:
       - 8081:8081
-    depends_on:
-      - db
     networks:
       - todo-stack
     environment:

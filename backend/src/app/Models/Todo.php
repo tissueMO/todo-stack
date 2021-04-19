@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\BSON\UTCDateTime;
 
 /**
@@ -11,6 +12,8 @@ use MongoDB\BSON\UTCDateTime;
  */
 class Todo extends Eloquent
 {
+    use HasFactory;
+
     protected $collection = 'todos';
 
     /**
@@ -21,6 +24,8 @@ class Todo extends Eloquent
     protected $guarded = [];
 
     /**
+     * 期限日を文字列にフォーマットして返します。
+     *
      * @return string
      */
     public function getLimitAttribute()
@@ -31,6 +36,8 @@ class Todo extends Eloquent
     }
 
     /**
+     * 期限日をDateTime型で返します。
+     *
      * @return DateTime
      */
     public function getLimitDateAttribute()
@@ -41,6 +48,8 @@ class Todo extends Eloquent
     }
 
     /**
+     * 文字列で表現された期限日をセットします。
+     *
      * @param string $value
      * @return void
      */
