@@ -20,8 +20,9 @@ jobs:
 
       - name: Docker-Compose run
         run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm app composer install
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm frontend yarn
+          sudo chown -R 82:82 ./backend/src
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm -T app composer install
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm -T frontend yarn
           docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up --build -d
 
       - name: Wait containers up
