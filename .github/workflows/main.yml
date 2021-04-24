@@ -38,7 +38,7 @@ jobs:
           platforms: linux/arm/v7
           tags: ${{ env.IMAGE_ID}}:latest
           context: ./backend
-          file: ./docker/${{ matrix.image }}/Dockerfile
+          file: ./backend/docker/${{ matrix.image }}/Dockerfile
           push: true
 
   push_frontend:
