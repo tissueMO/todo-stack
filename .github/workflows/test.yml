@@ -3,7 +3,6 @@ name: Execute Unit Tests
 on:
   workflow_dispatch:
   pull_request:
-  push:
     branches:
       - main
       - develop
@@ -21,32 +20,31 @@ jobs:
 
       - name: Docker-Compose run
         run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up
+          sudo chown -R 82:82 ./backend/src
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm -T app composer install
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm -T frontend yarn
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up --build -d
 
       - name: Wait containers up
         run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run wait app:8080 -- echo "Backend is up"
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run wait db:27017 -- echo "Database is up"
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run wait frontend:3000 -- echo "Frontend is up"
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm wait app:8080 -- echo "Backend is up"
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm wait db:27017 -- echo "Database is up"
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run --rm wait frontend:3000 -- echo "Frontend is up"
 
       - name: Test frontend
         id: frontend
         continue-on-error: true
-        run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec frontend yarn test
-          echo "::set-output name=result::$?"
+        run: docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T frontend yarn test
 
       - name: Test backend
         id: backend
         continue-on-error: true
-        run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec app vendor/bin/phpunit
-          echo "::set-output name=result::$?"
+        run: docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T app vendor/bin/phpunit
 
       - name: Result check of success
-        if: steps.frontend.outputs.result == '0' && steps.backend.outputs.result == '0'
+        if: steps.frontend.outcome == 'success' && steps.backend.outcome == 'success'
         run: exit 0
 
       - name: Result check of failure
-        if: steps.frontend.outputs.result != '0' || steps.backend.outputs.result != '0'
+        if: steps.frontend.outcome != 'success' || steps.backend.outcome != 'success'
         run: exit 1
