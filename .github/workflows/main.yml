@@ -87,6 +87,6 @@ jobs:
           platforms: linux/arm/v7
           tags: ${{ env.IMAGE_ID }}
           context: ./frontend
-          file: ./backend/docker/${{ matrix.image }}/Dockerfile
+          file: ./frontend/Dockerfile
           target: production
           push: true
