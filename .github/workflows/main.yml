@@ -28,7 +28,6 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login $DOCKER_REGISTRY -u ${{ github.actor }} --password-stdin
 
       - name: Build image
-        
         run: |
           IMAGE_ID=$DOCKER_REGISTRY/${{ github.repository }}/${{ env.DOCKER_IMAGE_PREFIX }}${{ matrix.image }}
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
@@ -43,10 +42,8 @@ jobs:
           context: backend
           platforms: linux/arm/v7
           file: ${{ env.DOCKER_FILE }}
-          builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: |
-            ${{ env.IMAGE_ID}}:latest
+          tags: ${{ env.IMAGE_ID}}:latest
 
   push_frontend:
     # ソースコード一式を Docker コンテナーに封入して GitHub Packages にプッシュする
@@ -80,8 +77,6 @@ jobs:
           context: frontend
           platforms: linux/arm/v7
           file: ${{ env.DOCKER_FILE }}
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: |
-            ${{ env.IMAGE_ID}}:latest
           target: production
+          push: true
+          tags: ${{ env.IMAGE_ID}}:latest
