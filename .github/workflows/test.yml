@@ -3,7 +3,6 @@ name: Execute Unit Tests
 on:
   workflow_dispatch:
   pull_request:
-  push:
     branches:
       - main
       - develop
@@ -21,7 +20,7 @@ jobs:
 
       - name: Docker-Compose run
         run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up --build -d
 
       - name: Wait containers up
         run: |
@@ -33,14 +32,14 @@ jobs:
         id: frontend
         continue-on-error: true
         run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec frontend yarn test
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T frontend yarn test
           echo "::set-output name=result::$?"
 
       - name: Test backend
         id: backend
         continue-on-error: true
         run: |
-          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec app vendor/bin/phpunit
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec -T app vendor/bin/phpunit
           echo "::set-output name=result::$?"
 
       - name: Result check of success
