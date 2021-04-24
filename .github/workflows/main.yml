@@ -11,7 +11,6 @@ env:
 
 jobs:
   push_backend:
-    # ソースコード一式を Docker コンテナーに封入して GitHub Packages にプッシュする
     name: Push backend docker image to GitHub Packages
     runs-on: ubuntu-latest
     strategy:
@@ -31,22 +30,21 @@ jobs:
         run: |
           IMAGE_ID=$DOCKER_REGISTRY/${{ github.repository }}/${{ env.DOCKER_IMAGE_PREFIX }}${{ matrix.image }}
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          DOCKER_FILE=docker/${{ matrix.image }}/Dockerfile
-
           echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+
+          DOCKER_FILE=docker/${{ matrix.image }}/Dockerfile
           echo "DOCKER_FILE=$DOCKER_FILE" >> $GITHUB_ENV
 
       - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: backend
-          platforms: linux/arm/v7
-          file: ${{ env.DOCKER_FILE }}
-          push: true
-          tags: ${{ env.IMAGE_ID}}:latest
+        run: |
+          docker buildx build \
+            --platform linux/arm/v7 \
+            --tag ${{ env.IMAGE_ID}}:latest \
+            --dockerfile docker/${ matrix.image } \
+            backend
+          docker push $IMAGE_ID:$IMAGE_VERSION
 
   push_frontend:
-    # ソースコード一式を Docker コンテナーに封入して GitHub Packages にプッシュする
     name: Push frontend docker image to GitHub Packages
     runs-on: ubuntu-latest
     strategy:
@@ -66,17 +64,13 @@ jobs:
         run: |
           IMAGE_ID=$DOCKER_REGISTRY/${{ github.repository }}/${{ env.DOCKER_IMAGE_PREFIX }}${{ matrix.image }}
           IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          DOCKER_FILE=Dockerfile
-
           echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
-          echo "DOCKER_FILE=$DOCKER_FILE" >> $GITHUB_ENV
 
       - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: frontend
-          platforms: linux/arm/v7
-          file: ${{ env.DOCKER_FILE }}
-          target: production
-          push: true
-          tags: ${{ env.IMAGE_ID}}:latest
+        run: |
+          docker buildx build \
+            --platform linux/arm/v7 \
+            --tag ${{ env.IMAGE_ID}}:latest \
+            --target production \
+            frontend
+          docker push $IMAGE_ID:$IMAGE_VERSION
