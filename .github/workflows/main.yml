@@ -40,7 +40,7 @@ jobs:
           docker buildx build \
             --platform linux/arm64 \
             --tag ${{ env.IMAGE_ID}}:latest \
-            --file docker/${{ matrix.image }} \
+            --file docker/${{ matrix.image }}/Dockerfile \
             backend
           docker push $IMAGE_ID:$IMAGE_VERSION
 
