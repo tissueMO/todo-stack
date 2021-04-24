@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.4-fpm-alpine AS development
 
 # PECL
 RUN apk --update add --virtual build-dependencies build-base openssl-dev autoconf && \
@@ -17,3 +17,16 @@ COPY docker/app/www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
 USER www-data
 
 WORKDIR /app/src
+
+FROM development AS production
+
+ADD src /app/src
+
+USER root
+
+WORKDIR /app/src
+
+RUN composer install \
+  && chown -R www-data:www-data .
+
+USER www-data
