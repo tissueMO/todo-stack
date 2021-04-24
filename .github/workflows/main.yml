@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
@@ -26,24 +29,16 @@ jobs:
       - name: Login registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login $DOCKER_REGISTRY -u ${{ github.actor }} --password-stdin
 
-      - name: Set environment variables
-        run: |
-          IMAGE_ID=$DOCKER_REGISTRY/${{ github.repository }}/${{ env.DOCKER_IMAGE_PREFIX }}${{ matrix.image }}
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          echo "IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
-
       - name: Build image
         uses: docker/build-push-action@v2
         with:
           platforms: linux/arm/v7
-          tags: ${{ matrix.image }}:latest
+          registry: ${{ env.DOCKER_REGISTRY }}
+          repository: ${{ github.repository }}
+          tags: ${{ matrix.image }}
           context: ./backend
           file: ./backend/docker/${{ matrix.image }}/Dockerfile
-
-      - name: Push image
-        run: |
-          docker tag ${{ matrix.image }}:latest ${IMAGE_ID}:latest
-          docker push ${IMAGE_ID}:latest
+          push: true
 
   push_frontend:
     name: Push frontend docker image to GitHub Packages
@@ -53,6 +48,9 @@ jobs:
         image: [frontend]
     steps:
       - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
 
       - name: Set up Docker Buildx
         id: buildx
