@@ -1,0 +1,52 @@
+name: Execute Unit Tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+env:
+  DOCKER_COMPOSE_FILE: docker-compose.dev.yml
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Docker-Compose run
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} up
+
+      - name: Wait containers up
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run wait app:8080 -- echo "Backend is up"
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run wait db:27017 -- echo "Database is up"
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} run wait frontend:3000 -- echo "Frontend is up"
+
+      - name: Test frontend
+        id: frontend
+        continue-on-error: true
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec frontend yarn test
+          echo "::set-output name=result::$?"
+
+      - name: Test backend
+        id: backend
+        continue-on-error: true
+        run: |
+          docker-compose -f ${{ env.DOCKER_COMPOSE_FILE }} exec app vendor/bin/phpunit
+          echo "::set-output name=result::$?"
+
+      - name: Result check of success
+        if: steps.frontend.outputs.result == '0' && steps.backend.outputs.result == '0'
+        run: exit 0
+
+      - name: Result check of failure
+        if: steps.frontend.outputs.result != '0' || steps.backend.outputs.result != '0'
+        run: exit 1
