@@ -66,13 +66,12 @@ export default {
       // /api/todos (GET) 一覧
       const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos`;
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      console.log(this.todos);
+      // console.log(this.todos);
     },
     async addItem (e) {
       const cloneItem = { ...this.item };
       cloneItem.hours = Number(cloneItem.hours);
       cloneItem.limit += ':00';
-      console.log(cloneItem);
       // /api/todos (POST) 新規追加
       // /api/todos/id (PUT/PATCH) 更新
       const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos${cloneItem._id ? `/${cloneItem._id}` : ''}`;
@@ -111,7 +110,6 @@ export default {
     editItem (index) {
       // タスク編集
       this.item = { ...this.todos[index] };
-      console.log(this.item);
     }
   }
 };

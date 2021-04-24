@@ -58,7 +58,7 @@ export default {
       // /api/todos (GET) 一覧
       const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/?top=true`;
       await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      console.log(this.todos);
+      // console.log(this.todos);
     },
     async completeTask (index) {
       const cloneItem = { ...this.todos[index] };
