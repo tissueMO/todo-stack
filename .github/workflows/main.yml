@@ -47,6 +47,7 @@ jobs:
           tags: ${{ env.IMAGE_ID }}
           context: ./backend
           file: ./backend/docker/${{ matrix.image }}/Dockerfile
+          target: production
           push: true
 
   push_frontend:
