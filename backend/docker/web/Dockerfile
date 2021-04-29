@@ -1,7 +1,4 @@
-FROM nginx:1.19-alpine AS development
-
-RUN apk add shadow && \
-  usermod -u 82 -g 82 nginx
+FROM nginx:1.19 AS development
 
 COPY docker/web/setup.sh /bin
 COPY docker/web/default.conf /etc/nginx/conf.d

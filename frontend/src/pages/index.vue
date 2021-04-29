@@ -45,56 +45,58 @@ export default {
     };
   },
   mounted () {
-    this.getItem();
+    this.fetchTasks();
   },
   created () {
     // 30分に1回データ取得
     setInterval(() => {
-      this.getItem();
+      this.fetchTasks();
     }, 30 * 60 * 1000);
   },
   methods: {
-    async getItem () {
-      // /api/todos (GET) 一覧
+    async fetchTasks () {
       const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/?top=true`;
-      await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      // console.log(this.todos);
+      await this.$axios.get(url).then((x) => {
+        this.todos = x.data;
+      });
     },
     async completeTask (index) {
-      const cloneItem = { ...this.todos[index] };
-      cloneItem.hours = Number(cloneItem.hours);
-      if (cloneItem.priority) { cloneItem.priority = Number(cloneItem.priority); }
-      cloneItem.limit += ':00';
-      cloneItem.complete = true;
-      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/${cloneItem._id}`;
+      const srcTask = this.todos[index];
       await this.$axios.put(
-        url,
-        cloneItem,
+        `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/${srcTask._id}`,
+        {
+          ...srcTask,
+          hours: Number(srcTask.hours),
+          priority: srcTask.priority ? Number(srcTask.priority) : undefined,
+          limit: `${srcTask.limit}:00`,
+          complete: true
+        },
         {
           headers: {
             'Content-Type': 'application/json'
           }
         }
       ).then((res) => {
-        this.getItem();
-      })
-        .catch((err) => {
-          alert('エラーが発生しました');
-          console.error(err);
-        });
+        this.fetchTasks();
+      }).catch((err) => {
+        alert('エラーが発生しました');
+        console.error(err);
+      });
     }
   }
 };
 </script>
 
 <style lang='scss'>
-.hours{
+.hours {
   width: 6rem;
 }
-.limit{
+
+.limit {
   width: 10rem;
 }
-.buttons{
+
+.buttons {
   width: 7rem;
 }
 </style>

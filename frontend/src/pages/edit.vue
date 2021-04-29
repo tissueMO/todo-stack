@@ -20,12 +20,12 @@
           <td>{{ todo.hours }}</td>
           <td>{{ todo.limit | date }}</td>
           <td>
-            <button class="btn btn-sm btn-primary btn-block" @click="editItem(index)">
+            <button class="btn btn-sm btn-primary btn-block" @click="editTask(index)">
               編集
             </button>
           </td>
           <td>
-            <button :id="todo._id" class="btn btn-sm btn-danger btn-block" @click="deleteItem">
+            <button class="btn btn-sm btn-danger btn-block" @click="removeTask(todo._id)">
               削除
             </button>
           </td>
@@ -34,18 +34,23 @@
     </table>
     <div class="form-group">
       <label for="name">タスク名</label>
-      <input id="name" v-model="item.name" name="name" type="text">
+      <input id="name" v-model="targetTask.name" name="name" type="text">
     </div>
     <div class="form-group">
       <label for="hours">所要時間</label>
-      <input id="hours" v-model="item.hours" type="number" name="hours">
+      <input id="hours" v-model="targetTask.hours" type="number" name="hours">
     </div>
     <div class="form-group">
       <label for="limit">期限</label>
-      <input id="limit" v-model="item.limit" type="datetime-local" name="limit">
+      <input id="limit" v-model="targetTask.limit" type="datetime-local" name="limit">
     </div>
-    <button class="btn btn-secondary" @click="addItem">
-      追加
+    <button class="btn btn-secondary" @click="pushTask">
+      <span v-if="targetTask._id">
+        編集
+      </span>
+      <span v-else>
+        追加
+      </span>
     </button>
   </div>
 </template>
@@ -54,62 +59,65 @@
 export default {
   data () {
     return {
-      item: { _id: null, name: '', hours: 0, limit: '' },
+      targetTask: {},
       todos: []
     };
   },
   mounted () {
-    this.getItem();
+    this.fetchTasks();
+    this.resetTask();
   },
   methods: {
-    async getItem () {
-      // /api/todos (GET) 一覧
-      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos`;
-      await this.$axios.get(url).then((x) => { this.todos = x.data; });
-      // console.log(this.todos);
+    resetTask () {
+      this.targetTask = {
+        _id: null,
+        name: '',
+        hours: 0,
+        limit: ''
+      };
     },
-    async addItem (e) {
-      const cloneItem = { ...this.item };
-      cloneItem.hours = Number(cloneItem.hours);
-      cloneItem.limit += ':00';
-      // /api/todos (POST) 新規追加
-      // /api/todos/id (PUT/PATCH) 更新
-      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos${cloneItem._id ? `/${cloneItem._id}` : ''}`;
+    async fetchTasks () {
+      const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos`;
+      await this.$axios.get(url).then((x) => {
+        this.todos = x.data;
+      });
+    },
+    async pushTask () {
+      const id = this.targetTask._id;
       await this.$axios.request({
-        url,
-        method: (cloneItem._id ? 'put' : 'post'),
-        data: cloneItem,
+        url: `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos${id ? `/${id}` : ''}`,
+        method: (id ? 'put' : 'post'),
+        data: {
+          ...this.targetTask,
+          hours: Number(this.targetTask.hours),
+          limit: `${this.targetTask.limit}:00`
+        },
         headers: {
           'Content-Type': 'application/json'
         }
-      }).then((res) => {
-        this.getItem();
-        this.item = { _id: null, name: '', hours: 0, limit: '' };
-      })
-        .catch((err) => {
-          alert('エラーが発生しました');
-          console.error(err);
-        });
+      }).then(() => {
+        this.fetchTasks();
+        this.resetTask();
+      }).catch((err) => {
+        alert('エラーが発生しました');
+        console.error(err);
+      });
     },
-    async deleteItem (e) {
-      const id = e.currentTarget.id;
-      console.log(id);
-      // /api/todos/id (DELETE) 削除
+    async removeTask (id) {
       const url = `${this.$config.backendScheme}://${this.$config.backendHost}/api/todos/${id}`;
       await this.$axios.delete(url)
-        .then((res) => {
+        .then(() => {
           alert('削除しました');
-          this.getItem();
-          this.item = { _id: null, name: '', hours: 0, limit: '' };
+          this.fetchTasks();
+          this.resetTask();
         })
         .catch((err) => {
           alert('エラーが発生しました');
           console.error(err);
         });
     },
-    editItem (index) {
-      // タスク編集
-      this.item = { ...this.todos[index] };
+    editTask (index) {
+      this.targetTask = { ...this.todos[index] };
     }
   }
 };
