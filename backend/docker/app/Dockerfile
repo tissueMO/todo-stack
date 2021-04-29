@@ -2,9 +2,10 @@ FROM php:7.4-fpm-buster AS development
 
 # PECL
 RUN apt-get -y update && \
-    apt-get -y install git libssl-dev openssl ssl-cert && \
+    apt-get -y install git libssl-dev openssl ssl-cert libzip-dev && \
     pecl install mongodb && \
-    docker-php-ext-enable mongodb
+    docker-php-ext-enable mongodb && \
+    docker-php-ext-install zip
 
 # Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
