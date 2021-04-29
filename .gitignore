@@ -104,3 +104,4 @@ dist
 .tern-port
 
 docker-compose.*.local.yml
+frontend/src/metrics.csv
