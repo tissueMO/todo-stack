@@ -27,4 +27,6 @@ ENV COMPOSER_NO_INTERACTION 1
 
 RUN composer install
 
+RUN chown -R www-data:www-data /app/src/storage
+
 COPY docker/app/php.ini-production /usr/local/etc/php
